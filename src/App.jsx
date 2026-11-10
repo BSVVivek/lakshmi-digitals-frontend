@@ -22,7 +22,7 @@ const pages = {
   testimonials: TestimonialManager,
 };
 
-const ADMIN_PIN = '1234';
+const ADMIN_PIN = 'Nagamani@9963';
 
 function App() {
   const [activeTab, setActiveTab] = useState('home');
