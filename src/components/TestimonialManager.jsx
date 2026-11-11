@@ -58,8 +58,8 @@ export default function TestimonialManager({ isAdmin }) {
 
   return (
     <section className="manager-page popup-container">
-      <h2>{isAdmin ? 'Manage Testimonials' : 'Client Testimonials'}</h2>
-      <div className="testimonial-stats" aria-label="Testimonial summary">
+      <h2>{isAdmin ? 'Manage Customer Reviews' : 'Customer Reviews'}</h2>
+      <div className="testimonial-stats" aria-label="Customer review summary">
         <article className="testimonial-stat">
           <span className="stat-icon" aria-hidden="true">✦</span>
           <div>
@@ -79,7 +79,7 @@ export default function TestimonialManager({ isAdmin }) {
         <input type="text" placeholder="Client Name" value={clientName} onChange={(e) => setClientName(e.target.value)} required />
         <input type="text" placeholder="Feedback" value={feedback} onChange={(e) => setFeedback(e.target.value)} required />
         <input type="number" placeholder="Rating (1-5)" value={rating} onChange={(e) => setRating(e.target.value)} min="1" max="5" required />
-        <button type="submit">Add Testimonial</button>
+        <button type="submit">Add Review</button>
       </form>
 
       <h3>Reviews</h3>

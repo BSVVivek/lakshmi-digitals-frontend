@@ -11,7 +11,7 @@ const sections = [
   { id: 'photos', label: 'Portfolio' },
   { id: 'events', label: 'Events' },
   { id: 'bookings', label: 'Bookings' },
-  { id: 'testimonials', label: 'Testimonials' },
+  { id: 'testimonials', label: 'Customer Reviews' },
 ];
 
 const pages = {
@@ -30,6 +30,7 @@ function App() {
   const [isPinDialogOpen, setIsPinDialogOpen] = useState(false);
   const [pin, setPin] = useState('');
   const [pinError, setPinError] = useState('');
+  const [isThemeRippling, setIsThemeRippling] = useState(false);
   const [darkMode, setDarkMode] = useState(
     () => window.localStorage.getItem('lakshmi-digitals-theme') === 'dark',
   );
@@ -37,8 +38,9 @@ function App() {
 
   useEffect(() => {
     document.documentElement.dataset.theme = darkMode ? 'dark' : 'light';
+    document.documentElement.dataset.admin = String(isAdmin);
     window.localStorage.setItem('lakshmi-digitals-theme', darkMode ? 'dark' : 'light');
-  }, [darkMode]);
+  }, [darkMode, isAdmin]);
 
   const handleAdminMode = () => {
     if (isAdmin) {
@@ -64,7 +66,7 @@ function App() {
   };
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell${isAdmin ? ' admin-view' : ''}`}>
       <header className="site-header">
         <a
           className="brand"
@@ -98,8 +100,12 @@ function App() {
 
         <button
           type="button"
-          className="theme-toggle"
-          onClick={() => setDarkMode((isDark) => !isDark)}
+          className={`theme-toggle${isThemeRippling ? ' is-rippling' : ''}`}
+          onClick={() => {
+            setIsThemeRippling(true);
+            setDarkMode((isDark) => !isDark);
+            window.setTimeout(() => setIsThemeRippling(false), 720);
+          }}
           aria-label={`Switch to ${darkMode ? 'light' : 'dark'} mode`}
           title={`Switch to ${darkMode ? 'light' : 'dark'} mode`}
         >
@@ -138,9 +144,7 @@ function App() {
                 autoFocus
                 id="admin-pin"
                 type="password"
-                inputMode="numeric"
                 autoComplete="current-password"
-                maxLength={4}
                 value={pin}
                 onChange={(event) => {
                   setPin(event.target.value);

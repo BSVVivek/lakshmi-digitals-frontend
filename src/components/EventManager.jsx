@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import API from '../services/api';
+import DateInput from './DateInput';
+import { isValidDate } from '../utils/date';
 
 export default function EventManager({ isAdmin }) {
   const [events, setEvents] = useState([]);
@@ -29,6 +31,10 @@ export default function EventManager({ isAdmin }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!isValidDate(date)) {
+      window.alert('Please enter a valid event date in dd-MM-yyyy format.');
+      return;
+    }
     try {
       await API.post('/events', { title, date, location, description });
       setTitle('');
@@ -63,7 +69,13 @@ export default function EventManager({ isAdmin }) {
       {isAdmin && (
         <form className="manager-form" onSubmit={handleSubmit}>
           <input type="text" placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} required />
-          <input type="text" placeholder="Date (dd-MM-yyyy HH:mm:ss)" value={date} onChange={(e) => setDate(e.target.value)} required />
+          <DateInput
+            id="event-date"
+            label="Event date"
+            value={date}
+            onChange={setDate}
+            required
+          />
           <input type="text" placeholder="Location" value={location} onChange={(e) => setLocation(e.target.value)} required />
           <input type="text" placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} />
           <button type="submit">Add Event</button>
@@ -89,13 +101,18 @@ export default function EventManager({ isAdmin }) {
 }
 
 function parseEventDate(value) {
-  const parsed = new Date(value);
-  if (!Number.isNaN(parsed.getTime())) return parsed;
-
   const match = /^(\d{2})-(\d{2})-(\d{4})(?:\s+(\d{2}):(\d{2})(?::(\d{2}))?)?$/.exec(value ?? '');
-  if (!match) return null;
+  if (match) {
+    const [, day, month, year, hour = '00', minute = '00', second = '00'] = match;
+    const parsedDate = new Date(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute), Number(second));
+    if (
+      parsedDate.getFullYear() !== Number(year)
+      || parsedDate.getMonth() !== Number(month) - 1
+      || parsedDate.getDate() !== Number(day)
+    ) return null;
+    return parsedDate;
+  }
 
-  const [, day, month, year, hour = '00', minute = '00', second = '00'] = match;
-  const date = new Date(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute), Number(second));
-  return Number.isNaN(date.getTime()) ? null : date;
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
