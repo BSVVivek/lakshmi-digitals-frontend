@@ -36,7 +36,7 @@ export default function BookingManager({ isAdmin }) {
 
   useEffect(() => {
     if (!isSuccessOpen) return undefined;
-    const timeoutId = window.setTimeout(() => setIsSuccessOpen(false), 10000);
+    const timeoutId = window.setTimeout(() => setIsSuccessOpen(false), 15000);
     return () => window.clearTimeout(timeoutId);
   }, [isSuccessOpen]);
 
