@@ -994,6 +994,7 @@ a {
 
 .booking-list-toolbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
@@ -1016,6 +1017,34 @@ a {
   border-radius: 10px;
   background: var(--surface-strong);
   color: var(--text);
+}
+
+.booking-search {
+  min-width: 180px;
+  min-height: 38px;
+  flex: 1 1 220px;
+  padding: 6px 11px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-strong);
+  color: var(--text);
+}
+
+.booking-total-stat {
+  max-width: 460px;
+  margin: 0 0 27px;
+}
+
+.booking-total-stat button {
+  min-height: 36px;
+  margin-left: auto;
+  padding: 0 13px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-strong);
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 600;
 }
 
 .admin-calendar-widget {
@@ -1652,11 +1681,16 @@ a {
 
   .booking-list-toolbar {
     align-items: flex-start;
+    flex-direction: column;
   }
 
   .booking-list-toolbar > label {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .booking-search {
+    width: 100%;
   }
 
   .admin-calendar-trigger {

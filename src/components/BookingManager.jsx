@@ -18,6 +18,9 @@ export default function BookingManager({ isAdmin }) {
   const [confirmedBookings, setConfirmedBookings] = useState([]);
   const [confirmedDatesError, setConfirmedDatesError] = useState('');
   const [bookingFilter, setBookingFilter] = useState('All');
+  const [bookingSearch, setBookingSearch] = useState('');
+  const [bookingCount, setBookingCount] = useState(null);
+  const [bookingCountError, setBookingCountError] = useState('');
 
   async function fetchConfirmedDates() {
     try {
@@ -51,9 +54,34 @@ export default function BookingManager({ isAdmin }) {
     }
   }
 
+  async function fetchBookingCount() {
+    try {
+      const response = await API.get('/bookings/count');
+      const count = typeof response.data === 'number' ? response.data : response.data?.count;
+      if (!Number.isInteger(count) || count < 0) {
+        throw new Error('Expected /bookings/count to return a non-negative integer.');
+      }
+      setBookingCount(count);
+      setBookingCountError('');
+    } catch (error) {
+      console.error('Error fetching booking count:', error);
+      setBookingCountError('Could not load the total booking count.');
+    }
+  }
+
   useEffect(() => {
+    if (!isAdmin) {
+        setBookings([]);
+        setConfirmedBookings([]);
+        setConfirmedDatesError('');
+        fetchBookingCount();
+        const intervalId = window.setInterval(fetchBookingCount, 30000);
+        return () => window.clearInterval(intervalId);
+    }
+
     fetchBookings();
-    if (isAdmin) fetchConfirmedDates();
+    fetchConfirmedDates();
+    return undefined;
   }, [isAdmin]);
 
   const handleSubmit = async (e) => {
@@ -78,7 +106,12 @@ export default function BookingManager({ isAdmin }) {
       setEventDate('');
       setStatus('Pending');
       setIsSuccessOpen(true);
-      await fetchBookings();
+
+      if (isAdmin) {
+        await fetchBookings();
+      } else {
+        await fetchBookingCount();
+      }
     } catch (error) {
       console.error('Error saving booking:', error);
       const responseMessage = error.response?.data;
@@ -183,7 +216,18 @@ export default function BookingManager({ isAdmin }) {
         <button type="submit">Add Booking</button>
       </form>
 
-      <h3>{isAdmin ? 'All Bookings' : 'Booking Requests'}</h3>
+      {isAdmin && <h3>All Bookings</h3>}
+      {!isAdmin && (
+        <div className="testimonial-stat booking-total-stat" aria-live="polite">
+          <span className="stat-icon" aria-hidden="true">#</span>
+          <div>
+            <strong>{bookingCount === null ? '—' : bookingCount}</strong>
+            <span>Total bookings so far</span>
+            {bookingCountError && <span role="alert">{bookingCountError}</span>}
+          </div>
+          <button type="button" onClick={fetchBookingCount}>Refresh</button>
+        </div>
+      )}
       {isAdmin && (
         <div className="booking-list-toolbar">
           <label>
@@ -195,6 +239,14 @@ export default function BookingManager({ isAdmin }) {
               <option>Rejected</option>
             </select>
           </label>
+          <input
+            className="booking-search"
+            type="search"
+            placeholder="Search bookings"
+            aria-label="Search bookings by name, contact, email, event, or date"
+            value={bookingSearch}
+            onChange={(event) => setBookingSearch(event.target.value)}
+          />
           <AdminBookingCalendar
             bookings={confirmedBookings}
             fallbackBookings={bookings.filter((booking) => normalizeStatus(booking.status) === 'Confirmed')}
@@ -206,6 +258,18 @@ export default function BookingManager({ isAdmin }) {
       <ul className="manager-list">
         {bookings
           .filter((booking) => !isAdmin || bookingFilter === 'All' || normalizeStatus(booking.status) === bookingFilter)
+          .filter((booking) => {
+            const query = bookingSearch.trim().toLocaleLowerCase();
+            if (!isAdmin || !query) return true;
+            return [
+              booking.clientName,
+              booking.contact,
+              booking.email,
+              booking.eventType,
+              booking.eventDate,
+              booking.status,
+            ].some((value) => String(value ?? '').toLocaleLowerCase().includes(query));
+          })
           .map((b) => (
           <li key={b.id}>
             <div className="booking-summary">
