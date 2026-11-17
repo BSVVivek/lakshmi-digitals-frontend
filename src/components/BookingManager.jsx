@@ -192,7 +192,7 @@ export default function BookingManager({ isAdmin }) {
           <option value="Marriage">Marriage</option>
           <option value="Engagement">Engagement</option>
           <option value="Reception">Reception</option>
-          <option value="Ooni Function">Ooni Function</option>
+          <option value="Half Saree Function">Half Saree Function</option>
           <option value="Mature Function">Mature Function</option>
           <option value="Housewarming Ceremony">Housewarming Ceremony</option>
           <option value="Party">Party</option>
