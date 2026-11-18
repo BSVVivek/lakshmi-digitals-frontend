@@ -1,0 +1,93 @@
+.backend-status-panel {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.backend-status-item,
+.database-status-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.backend-status-dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #94a3b8;
+  transition: background 180ms ease, box-shadow 180ms ease;
+}
+
+.backend-state-waking .backend-status-dot {
+  background: #d97706;
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.14);
+}
+
+.backend-state-live .backend-status-dot {
+  background: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.16);
+}
+
+.backend-state-offline .backend-status-dot {
+  background: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.14);
+}
+
+.database-status-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  color: #94a3b8;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: color 180ms ease;
+}
+
+.database-state-connected .database-status-icon {
+  color: #16a34a;
+}
+
+.database-state-disconnected .database-status-icon {
+  color: #dc2626;
+}
+
+.backend-state-checking .backend-status-dot,
+.backend-state-waking .backend-status-dot,
+.database-state-checking .database-status-icon {
+  animation: backend-status-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes backend-status-pulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@media (max-width: 680px) {
+  .backend-status-panel {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+
+  .backend-status-item,
+  .database-status-item {
+    font-size: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backend-state-checking .backend-status-dot,
+  .backend-state-waking .backend-status-dot,
+  .database-state-checking .database-status-icon {
+    animation: none;
+  }
+}

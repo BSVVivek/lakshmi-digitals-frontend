@@ -6,8 +6,9 @@ import PhotoManager from './components/PhotoManager';
 import EventManager from './components/EventManager';
 import BookingManager from './components/BookingManager';
 import TestimonialManager from './components/TestimonialManager';
+import BackendStatus from './components/BackendStatus';
 
-import API, {
+import {
     authenticateAdmin,
     clearAdminCredentials,
 } from './services/api';
@@ -33,8 +34,6 @@ const pages = {
 function App() {
 
     const [activeTab, setActiveTab] = useState('home');
-    const [isBackendLive, setIsBackendLive] = useState(false);
-    const [hasDatabaseConnected, setHasDatabaseConnected] = useState(false);
     const [hasBackendBeenLive, setHasBackendBeenLive] = useState(false);
 
     const [isAdmin, setIsAdmin] = useState(false);
@@ -59,43 +58,6 @@ function App() {
     );
 
     const ActivePage = pages[activeTab];
-
-    useEffect(() => {
-        let isMounted = true;
-        let hasResponded = false;
-        let retryTimeoutId;
-
-        const checkBackend = async () => {
-            try {
-                const response = await API.get('/api/health', {
-                    timeout: hasResponded ? 10000 : 90000,
-                });
-                hasResponded = true;
-                if (isMounted) {
-                    setIsBackendLive(true);
-                    setHasBackendBeenLive(true);
-                    if (response.data?.database === 'UP') {
-                        setHasDatabaseConnected(true);
-                    }
-                }
-            } catch {
-                if (isMounted) {
-                    setIsBackendLive(false);
-                }
-            } finally {
-                if (isMounted) {
-                    retryTimeoutId = window.setTimeout(checkBackend, 15000);
-                }
-            }
-        };
-
-        checkBackend();
-
-        return () => {
-            isMounted = false;
-            window.clearTimeout(retryTimeoutId);
-        };
-    }, []);
 
     // Update theme and admin appearance.
     useEffect(() => {
@@ -333,50 +295,7 @@ function App() {
                         {isAdmin ? 'Exit Admin' : 'Admin Login'}
                     </button>
 
-                    <div className="connection-indicators">
-                        <span
-                            className={`backend-status${
-                                isBackendLive ? ' is-live' : ''
-                            }`}
-                            role="status"
-                            aria-label={`Backend ${
-                                isBackendLive ? 'live' : 'not connected'
-                            }`}
-                            title={`Backend ${
-                                isBackendLive ? 'live' : 'not connected'
-                            }`}
-                        >
-                            <span className="backend-status-light" aria-hidden="true" />
-                        </span>
-                        <span
-                            className={`database-status${
-                                hasDatabaseConnected ? ' is-connected' : ''
-                            }`}
-                            role="status"
-                            aria-label={`Database ${
-                                hasDatabaseConnected
-                                    ? 'connected successfully'
-                                    : 'not connected'
-                            }`}
-                            title={`Database ${
-                                hasDatabaseConnected
-                                    ? 'connected successfully'
-                                    : 'not connected'
-                            }`}
-                        >
-                            <svg
-                                className="database-status-icon"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                aria-hidden="true"
-                            >
-                                <path d="M12 3C7.03 3 3 4.34 3 6s4.03 3 9 3 9-1.34 9-3-4.03-3-9-3Z" />
-                                <path d="M3 6v12c0 1.66 4.03 3 9 3s9-1.34 9-3V6" />
-                                <path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3" />
-                                <path d="M3 17.5c0 1.66 4.03 3 9 3s9-1.34 9-3" />
-                            </svg>
-                        </span>
-                    </div>
+                    <BackendStatus onBackendLive={setHasBackendBeenLive} />
 
                 </div>
 

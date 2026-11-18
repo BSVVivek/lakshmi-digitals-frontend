@@ -75,8 +75,7 @@ export default function BookingManager({ isAdmin }) {
         setConfirmedBookings([]);
         setConfirmedDatesError('');
         fetchBookingCount();
-        const intervalId = window.setInterval(fetchBookingCount, 30000);
-        return () => window.clearInterval(intervalId);
+        return undefined;
     }
 
     fetchBookings();
