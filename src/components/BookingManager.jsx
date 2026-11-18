@@ -15,6 +15,7 @@ export default function BookingManager({ isAdmin }) {
   const [status, setStatus] = useState('Pending');
   const [updatingBookingId, setUpdatingBookingId] = useState(null);
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
+  const [statusEmailNotice, setStatusEmailNotice] = useState(null);
   const [confirmedBookings, setConfirmedBookings] = useState([]);
   const [confirmedDatesError, setConfirmedDatesError] = useState('');
   const [bookingFilter, setBookingFilter] = useState('All');
@@ -39,6 +40,12 @@ export default function BookingManager({ isAdmin }) {
     const timeoutId = window.setTimeout(() => setIsSuccessOpen(false), 15000);
     return () => window.clearTimeout(timeoutId);
   }, [isSuccessOpen]);
+
+  useEffect(() => {
+    if (!statusEmailNotice) return undefined;
+    const timeoutId = window.setTimeout(() => setStatusEmailNotice(null), 10000);
+    return () => window.clearTimeout(timeoutId);
+  }, [statusEmailNotice]);
 
   async function fetchBookings() {
     try {
@@ -129,6 +136,9 @@ export default function BookingManager({ isAdmin }) {
         item.id === booking.id ? { ...item, status: nextStatus } : item
       )));
       await fetchConfirmedDates();
+      if (normalizeStatus(booking.status) === 'Pending' && ['Confirmed', 'Rejected'].includes(nextStatus)) {
+        setStatusEmailNotice({ booking, status: nextStatus });
+      }
     } catch (error) {
       console.error('Error updating booking status:', error);
       window.alert('Could not update the booking status. Please try again.');
@@ -322,6 +332,42 @@ export default function BookingManager({ isAdmin }) {
             <p>Your booking request has been received. The photographer R. NagaBabu will reach out to you soon.</p>
             <img src={thankYouGif} alt="Thank you" />
             <button type="button" onClick={() => setIsSuccessOpen(false)}>OK</button>
+          </section>
+        </div>
+      )}
+      {statusEmailNotice && (
+        <div className="booking-success-backdrop">
+          <section
+            className="booking-success-dialog booking-status-notice-dialog popup-container"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="booking-status-notice-title"
+          >
+            <h2 id="booking-status-notice-title">Booking {statusEmailNotice.status}</h2>
+            <p>Email sent to the customer about their booking status.</p>
+            <dl className="booking-status-notice-details">
+              <div>
+                <dt>Customer</dt>
+                <dd>{statusEmailNotice.booking.clientName || '—'}</dd>
+              </div>
+              <div>
+                <dt>Email</dt>
+                <dd>{statusEmailNotice.booking.email || '—'}</dd>
+              </div>
+              <div>
+                <dt>Contact</dt>
+                <dd>{statusEmailNotice.booking.contact || '—'}</dd>
+              </div>
+              <div>
+                <dt>Event</dt>
+                <dd>{statusEmailNotice.booking.eventType || '—'}</dd>
+              </div>
+              <div>
+                <dt>Event date</dt>
+                <dd>{statusEmailNotice.booking.eventDate || '—'}</dd>
+              </div>
+            </dl>
+            <button type="button" onClick={() => setStatusEmailNotice(null)}>OK</button>
           </section>
         </div>
       )}

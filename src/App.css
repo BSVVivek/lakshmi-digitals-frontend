@@ -424,6 +424,38 @@ a {
   font-weight: 650;
 }
 
+.booking-status-notice-dialog {
+  width: min(100%, 430px);
+}
+
+.booking-status-notice-details {
+  width: 100%;
+  margin: 0;
+  display: grid;
+  gap: 9px;
+  text-align: left;
+}
+
+.booking-status-notice-details > div {
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr);
+  gap: 10px;
+}
+
+.booking-status-notice-details dt {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.booking-status-notice-details dd {
+  min-width: 0;
+  margin: 0;
+  color: var(--text);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
 .pin-dialog {
   width: min(100%, 390px);
   padding: 30px;
